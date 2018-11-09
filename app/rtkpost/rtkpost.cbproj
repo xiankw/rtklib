@@ -6,7 +6,7 @@
         <Base>True</Base>
         <Config Condition="'$(Config)'==''">Release</Config>
         <FrameworkType>VCL</FrameworkType>
-        <ProjectVersion>18.2</ProjectVersion>
+        <ProjectVersion>18.4</ProjectVersion>
         <Platform Condition="'$(Platform)'==''">Win32</Platform>
         <TargetedPlatforms>1</TargetedPlatforms>
         <AppType>Application</AppType>
@@ -154,6 +154,8 @@
         <LinkPackageStatics>rtl.lib;vcl.lib;vclx.lib</LinkPackageStatics>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <AppEnableRuntimeThemes>true</AppEnableRuntimeThemes>
+        <BT_BuildType>Debug</BT_BuildType>
+        <FinalOutputDir>../../bin/</FinalOutputDir>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2_Win64)'!=''">
         <BCC_SourceDebuggingOn>false</BCC_SourceDebuggingOn>
@@ -318,17 +320,17 @@
             <BuildOrder>27</BuildOrder>
             <BuildOrder>11</BuildOrder>
         </CppCompile>
-        <FormResources Include="..\appcmn\viewer.dfm"/>
         <FormResources Include="..\appcmn\timedlg.dfm"/>
-        <FormResources Include="extopt.dfm"/>
+        <FormResources Include="..\appcmn\viewer.dfm"/>
         <FormResources Include="..\appcmn\vieweropt.dfm"/>
+        <FormResources Include="extopt.dfm"/>
         <FormResources Include="..\appcmn\refdlg.dfm"/>
-        <FormResources Include="..\appcmn\confdlg.dfm"/>
         <FormResources Include="..\appcmn\aboutdlg.dfm"/>
-        <FormResources Include="..\appcmn\maskoptdlg.dfm"/>
+        <FormResources Include="..\appcmn\confdlg.dfm"/>
         <FormResources Include="..\appcmn\keydlg.dfm"/>
-        <FormResources Include="postmain.dfm"/>
+        <FormResources Include="..\appcmn\maskoptdlg.dfm"/>
         <FormResources Include="kmzconv.dfm"/>
+        <FormResources Include="postmain.dfm"/>
         <FormResources Include="postopt.dfm"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
@@ -395,7 +397,10 @@
                     <Parameters Name="LoadAllSymbols">True</Parameters>
                     <Parameters Name="LoadUnspecifiedSymbols">False</Parameters>
                 </Parameters>
-                <Excluded_Packages/>
+                <Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\bcboffice2k250.bpl">Embarcadero C++Builder Office 2000 Servers Package</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\bcbofficexp250.bpl">Embarcadero C++Builder Office XP Servers Package</Excluded_Packages>
+                </Excluded_Packages>
                 <ProjectProperties>
                     <ProjectProperties Name="AutoShowDeps">False</ProjectProperties>
                     <ProjectProperties Name="ManagePaths">True</ProjectProperties>
