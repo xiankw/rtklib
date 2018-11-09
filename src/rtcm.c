@@ -76,7 +76,33 @@ extern int init_rtcm(rtcm_t *rtcm)
     geph_t geph0={0,-1};
     ssr_t ssr0={{{0}}};
     int i,j;
-    
+	const int glo_frq_table[26] = { 1,
+						-4,
+						05,
+						06,
+						01,
+						-4,
+						05,
+						06,
+						-2,
+						-7,
+						00,
+						-1,
+						-2,
+						-7,
+						00,
+						-1,
+						04,
+						-3,
+						03,
+						02,
+						04,
+						-3,
+						03,
+						02,
+						 0,
+						-5 };
+	int num_of_glo = sizeof(glo_frq_table)/sizeof(int),sat=0,prn=0;
     trace(3,"init_rtcm:\n");
     
     rtcm->staid=rtcm->stah=rtcm->seqno=rtcm->outtype=0;
@@ -122,7 +148,14 @@ extern int init_rtcm(rtcm_t *rtcm)
     rtcm->nav.ng=MAXPRNGLO;
     for (i=0;i<MAXOBS   ;i++) rtcm->obs.data[i]=data0;
     for (i=0;i<MAXSAT   ;i++) rtcm->nav.eph [i]=eph0;
-    for (i=0;i<MAXPRNGLO;i++) rtcm->nav.geph[i]=geph0;
+	for (i=0;i<MAXPRNGLO;i++) rtcm->nav.geph[i]=geph0;
+	for (i=0;i<MAXPRNGLO && i<num_of_glo;i++)
+	{
+		prn = i+1;
+		sat=satno(SYS_GLO,prn);
+		rtcm->nav.geph[i].frq = glo_frq_table[i];
+		rtcm->nav.geph[i].sat = sat;
+	}
     return 1;
 }
 /* free rtcm control ----------------------------------------------------------
