@@ -1921,6 +1921,7 @@ extern int rtkpos(rtk_t *rtk, const obsd_t *obs, int n, const nav_t *nav)
 	FILE *fDD_R = (rtk->sol.time.time == 0) ? (fopen("dd_R.txt", "w")) : (fopen("dd_R.txt", "a"));
 	FILE *fDD_E = (rtk->sol.time.time == 0) ? (fopen("dd_E.txt", "w")) : (fopen("dd_E.txt", "a"));
 	FILE *fDD_C = (rtk->sol.time.time == 0) ? (fopen("dd_C.txt", "w")) : (fopen("dd_C.txt", "a"));
+	FILE *fERR = (rtk->sol.time.time == 0) ? (fopen("dd_ERR.txt", "w")) : (fopen("dd_ERR.txt", "a"));
 	for (i = 0; i < n; ++i)
 	{
 		if (flag[i]) continue;
@@ -1929,7 +1930,7 @@ extern int rtkpos(rtk_t *rtk, const obsd_t *obs, int n, const nav_t *nav)
 			if (flag[j]) continue;
 			if (obs[i].sat != obs[j].sat) continue;
 			age = timediff(obs[i].time, obs[j].time);
-			if (fabs(age) < 0.005)
+			if (fabs(age) < 0.01)
 			{
 				ir[ns] = (obs[i].rcv == 1) ? j : i;
 				iu[ns] = (obs[i].rcv == 1) ? i : j;
@@ -1962,6 +1963,15 @@ extern int rtkpos(rtk_t *rtk, const obsd_t *obs, int n, const nav_t *nav)
 			curL[0] = (resL[i][0] == 0.0 || resL[j][0] == 0.0) ? (0.0) : (resL[i][0] - resL[j][0]);
 			curL[1] = (resL[i][1] == 0.0 || resL[j][1] == 0.0) ? (0.0) : (resL[i][1] - resL[j][1]);
 			curL[2] = (resL[i][2] == 0.0 || resL[j][2] == 0.0) ? (0.0) : (resL[i][2] - resL[j][2]);
+			if (curL[0]!=0.0) curL[0] -= floor(curL[0]+0.5);
+			if (curL[1]!=0.0) curL[1] -= floor(curL[1]+0.5);
+			if (curL[2]!=0.0) curL[2] -= floor(curL[2]+0.5);
+			if (fabs(curP[0])>100.0||fabs(curP[1])>100.0||fabs(curP[2])>100.0)
+			{
+				fprintf(fERR, "%4i,%10.3f,%3i,%3i,%3i,%10.3f,%10.3f,%10.3f,%10.3f,%10.3f,%10.3f\n", wn, ws, sat[i], sat[j], sys[i], curP[0], curP[1], curP[2], curL[0], curL[1], curL[2]);
+			}
+			else
+			{
 			if (sys[i] == SYS_GPS)
 				fprintf(fDD_G, "%4i,%10.3f,%3i,%3i,%3i,%10.3f,%10.3f,%10.3f,%10.3f,%10.3f,%10.3f\n", wn, ws, sat[i], sat[j], sys[i], curP[0], curP[1], curP[2], curL[0], curL[1], curL[2]);
 			else if (sys[i] == SYS_GLO)
@@ -1974,6 +1984,7 @@ extern int rtkpos(rtk_t *rtk, const obsd_t *obs, int n, const nav_t *nav)
 				fprintf(fDD_E, "%4i,%10.3f,%3i,%3i,%3i,%10.3f,%10.3f,%10.3f,%10.3f,%10.3f,%10.3f\n", wn, ws, sat[i], sat[j], sys[i], curP[0], curP[1], curP[2], curL[0], curL[1], curL[2]);
 			else if (sys[i] == SYS_CMP)
 				fprintf(fDD_C, "%4i,%10.3f,%3i,%3i,%3i,%10.3f,%10.3f,%10.3f,%10.3f,%10.3f,%10.3f\n", wn, ws, sat[i], sat[j], sys[i], curP[0], curP[1], curP[2], curL[0], curL[1], curL[2]);
+			}
 		}
 	}
 
@@ -1982,6 +1993,7 @@ extern int rtkpos(rtk_t *rtk, const obsd_t *obs, int n, const nav_t *nav)
 	fclose(fDD_R);
 	fclose(fDD_E);
 	fclose(fDD_C);
+	fclose(fERR);
 
 
 #endif
@@ -2016,6 +2028,7 @@ extern int rtkpos(rtk_t *rtk, const obsd_t *obs, int n, const nav_t *nav)
         outsolstat(rtk);
         return 1;
     }
+	return 1;
     /* suppress output of single solution */
     if (!opt->outsingle) {
         rtk->sol.stat=SOLQ_NONE;
