@@ -2028,7 +2028,6 @@ extern int rtkpos(rtk_t *rtk, const obsd_t *obs, int n, const nav_t *nav)
         outsolstat(rtk);
         return 1;
     }
-	return 1;
     /* suppress output of single solution */
     if (!opt->outsingle) {
         rtk->sol.stat=SOLQ_NONE;

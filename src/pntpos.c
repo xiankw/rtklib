@@ -203,6 +203,8 @@ static int rescode(int iter, const obsd_t *obs, int n, const double *rs,
 {
     double r,dion,dtrp,vmeas,vion,vtrp,rr[3],pos[3],dtr,e[3],P,lam_L1;
     int i,j,nv=0,sys,mask[4]={0};
+	int loc[100] = { 0 }, nl = 0, k = 0, flag[100] = { 0 };
+	double avg = 0.0, rms = 0.0, res[100] = { 0.0 }, temp = 0;
     
     trace(3,"resprng : n=%d\n",n);
     
@@ -211,9 +213,96 @@ static int rescode(int iter, const obsd_t *obs, int n, const double *rs,
     
     ecef2pos(rr,pos);
     
-    for (i=*ns=0;i<n&&i<MAXOBS;i++) {
-        vsat[i]=0; azel[i*2]=azel[1+i*2]=resp[i]=0.0;
+    for (i=0;i<n&&i<MAXOBS;i++) {
+        flag[i] = 0;
+        if (!(sys=satsys(obs[i].sat,NULL))) continue;
         
+        /* geometric distance/azimuth/elevation angle */
+        if ((r=geodist(rs+i*6,rr,e))<=0.0) continue;
+        
+        /* psudorange with code bias correction */
+        if ((P=prange(obs+i,nav,azel+i*2,iter,opt,&vmeas))==0.0) continue;
+        
+        /* pseudorange residual */
+        res[nl]=P-(r+dtr-CLIGHT*dts[i*2]);
+        
+        /* time system and receiver bias offset correction */
+        if      (sys==SYS_GLO) res[nl]-=x[4];
+        else if (sys==SYS_GAL) res[nl]-=x[5];
+        else if (sys==SYS_CMP) res[nl]-=x[6];
+         
+		loc[nl] = i;
+
+		++nl;
+        
+    }
+	/* sort v and loc */
+	for (i=0;i<nl;++i)
+	{
+		for (j=i+1;j<nl;++j)
+		{
+			if (res[i]>res[j])
+			{
+				r = res[i]; /* use r as temp */
+				res[i] = res[j];
+				res[j] = r;
+				sys = loc[i];
+				loc[i] = loc[j];
+				loc[j] = sys;
+			}
+		}
+	}
+	if (nl<4) return 0;
+	
+	avg = res[nl/2];
+	rms = 0.0;
+	nv = 0;
+	for (i=0;i<nl;++i)
+	{
+		for (j=i+1;j<nl;++j)
+		{
+			if (fabs(res[i]-avg)>fabs(res[j]-avg))
+			{
+				r = res[i]; /* use r as temp */
+				res[i] = res[j];
+				res[j] = r;
+				sys = loc[i];
+				loc[i] = loc[j];
+				loc[j] = sys;
+			}
+		}
+		if (nv>3)
+		{
+			temp = sqrt(rms/nv);
+			if (temp<100.0)
+				temp = 100.0;
+			if (fabs(res[i]-avg)>(12.0*temp))
+			{
+				k = 0;
+				continue;
+			}
+		}
+		rms += (res[i]-avg)*(res[i]-avg);
+		++nv;
+	}
+	rms /= nv;
+	rms = sqrt(rms);
+	nv = 0;
+	/* removed outlier */
+    for (k=0;k<nl;++k) {
+		i = loc[k];
+		if (fabs(res[k]-avg)>(12.0*rms))
+		{
+            trace(2,"outlier observation data %s sat=%2d\n",
+                  time_str(obs[i].time,3),obs[i].sat);
+			flag[i] = 1;
+			continue;
+		}
+	}
+	/* normal process */
+	for (i=*ns=0;i<n&&i<MAXOBS;i++) {
+        vsat[i]=0; azel[i*2]=azel[1+i*2]=resp[i]=0.0;
+        if (flag[i]==1) continue;
         if (!(sys=satsys(obs[i].sat,NULL))) continue;
         
         /* reject duplicated observation data */
@@ -262,7 +351,8 @@ static int rescode(int iter, const obsd_t *obs, int n, const double *rs,
         
         /* error variance */
         var[nv++]=varerr(opt,azel[1+i*2],sys)+vare[i]+vmeas+vion+vtrp;
-        
+
+      
         trace(4,"sat=%2d azel=%5.1f %4.1f res=%7.3f sig=%5.3f\n",obs[i].sat,
               azel[i*2]*R2D,azel[1+i*2]*R2D,resp[i],sqrt(var[nv-1]));
     }
@@ -319,6 +409,14 @@ static int estpos(const obsd_t *obs, int n, const double *rs, const double *dts,
     v=mat(n+4,1); H=mat(NX,n+4); var=mat(n+4,1);
     
     for (i=0;i<3;i++) x[i]=sol->rr[i];
+	if (x[0]==0.0||x[1]==0.0||x[2]==0.0) {
+		for (i=0;i<3;++i) 
+			x[i] = opt->ru[i];
+	}
+	if (x[0]==0.0||x[1]==0.0||x[2]==0.0) {
+		for (i=0;i<3;++i) 
+			x[i] = opt->rb[i];
+	}
     
     for (i=0;i<MAXITR;i++) {
         
@@ -543,13 +641,14 @@ extern int pntpos(const obsd_t *obs, int n, const nav_t *nav,
     prcopt_t opt_=*opt;
     double *rs,*dts,*var,*azel_,*resp;
     int i,stat,vsat[MAXOBS]={0},svh[MAXOBS];
+	char buffer[255];
     
     sol->stat=SOLQ_NONE;
     
     if (n<=0) {strcpy(msg,"no observation data"); return 0;}
     
     trace(3,"pntpos  : tobs=%s n=%d\n",time_str(obs[0].time,3),n);
-    
+
     sol->time=obs[0].time; msg[0]='\0';
     
     rs=mat(6,n); dts=mat(2,n); var=mat(1,n); azel_=zeros(2,n); resp=mat(1,n);
