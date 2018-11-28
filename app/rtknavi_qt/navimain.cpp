@@ -55,6 +55,8 @@
 #include "navimain.h"
 #include "graph.h"
 
+#include <locale.h>
+
 MainWindow *mainForm;
 
 //---------------------------------------------------------------------------
@@ -938,6 +940,7 @@ void  MainWindow::SvrStart(void)
     int i,strs[MAXSTRRTK]={0},sat,ex,stropt[8]={0};
     char *paths[8],*cmds[3]={0},*rcvopts[3]={0};
     char buff[1024],*p;
+    char errmsg[1024],*cmds_periods[3]={0};
     gtime_t time=timeget();
     pcvs_t pcvr,pcvs;
     pcv_t *pcv;
@@ -1091,8 +1094,8 @@ void  MainWindow::SvrStart(void)
     
     // start rtk server
     if (!rtksvrstart(&rtksvr,SvrCycle,SvrBuffSize,strs,paths,Format,NavSelect,
-                     cmds,rcvopts,NmeaCycle,NmeaReq,nmeapos,&PrcOpt,solopt,
-                     &monistr)) {
+                     cmds,cmds_periods,rcvopts,NmeaCycle,NmeaReq,nmeapos,&PrcOpt,solopt,
+                     &monistr,errmsg)) {
         traceclose();
         for (i=0;i<8;i++) delete[] paths[i];
         for (i=0;i<3;i++) delete[] rcvopts[i];

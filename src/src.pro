@@ -12,7 +12,7 @@ CONFIG += staticlib
 
 include(../RTKLib.pri)
 
-QMAKE_CFLAGS += -Wall -ansi -pedantic -Wno-unused-but-set-variable  -DTRACE -g
+QMAKE_CFLAGS += -Wall -ansi -pedantic -DTRACE -g
 DEFINES -= UNICODE
 
 SOURCES += rtkcmn.c \
@@ -60,7 +60,8 @@ SOURCES += rtkcmn.c \
     rcv/skytraq.c \
     rcv/ss2.c \
     rcv/ublox.c \
-    rcv/cmr.c
+    rcv/cmr.c \
+    rcv/tersus.c
 
 HEADERS += rtklib.h
 

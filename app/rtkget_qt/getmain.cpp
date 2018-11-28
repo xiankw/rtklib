@@ -40,6 +40,7 @@
 #include "viewer.h"
 
 #include <cstdio>
+#include <locale.h>
 
 #define PRGNAME     "RTKGET-QT"  // program name
 
