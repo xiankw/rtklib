@@ -44,6 +44,9 @@
 #else
 #include <pthread.h>
 #endif
+
+#include "../../iot_tel/lib_iothub_ll_telemetry.h" // DW ADDED
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -55,6 +58,10 @@ extern "C" {
 #endif
 
 /* constants -----------------------------------------------------------------*/
+#define ENAGLO // DW ADDED
+#define ENAGAL // DW ADDED
+#define ENACMP
+#define ENAQZS
 
 #define VER_RTKLIB  "2.4.3"             /* library version */
 
@@ -426,6 +433,7 @@ extern "C" {
 #define STR_UDPSVR   12                 /* stream type: UDP server */
 #define STR_UDPCLI   13                 /* stream type: UDP server */
 #define STR_MEMBUF   14                 /* stream type: memory buffer */
+#define STR_IOTHUB   15                 /* stream type: Azure cloud IoT Hub*/ // DW added
 
 #define STRFMT_RTCM2 0                  /* stream format: RTCM 2 */
 #define STRFMT_RTCM3 1                  /* stream format: RTCM 3 */

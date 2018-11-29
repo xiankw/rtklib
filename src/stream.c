@@ -2795,6 +2795,7 @@ extern int stropen(stream_t *stream, int type, int mode, const char *path)
         case STR_MEMBUF  : stream->port=openmembuf(path,     stream->msg); break;
         case STR_FTP     : stream->port=openftp   (path,0,   stream->msg); break;
         case STR_HTTP    : stream->port=openftp   (path,1,   stream->msg); break;
+        case STR_IOTHUB  : stream->port=openiothub(path,     stream->msg); break; // DW ADDED
         default: stream->state=0; return 1;
     }
     stream->state=!stream->port?-1:1;
@@ -2826,6 +2827,7 @@ extern void strclose(stream_t *stream)
             case STR_MEMBUF  : closemembuf((membuf_t *)stream->port); break;
             case STR_FTP     : closeftp   ((ftp_t    *)stream->port); break;
             case STR_HTTP    : closeftp   ((ftp_t    *)stream->port); break;
+            case STR_IOTHUB  : closeiothub((iothub_api_t *)stream->port); break; // DW ADDED
         }
     }
     else {
@@ -2944,6 +2946,7 @@ extern int strwrite(stream_t *stream, unsigned char *buff, int n)
         case STR_MEMBUF  : ns=writemembuf((membuf_t *)stream->port,buff,n,msg); break;
         case STR_FTP     :
         case STR_HTTP    :
+        case STR_IOTHUB  : ns=writeiothub((iothub_api_t *)stream->port, buff, n, msg); break; // DW added
         default:
             strunlock(stream);
             return 0;

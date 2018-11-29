@@ -40,6 +40,7 @@
 static strsvr_t strsvr;                /* stream server */
 static volatile int intrflg=0;         /* interrupt flag */
 static char srctbl[1024]="";           /* source table file */
+static iothub_api_t iothub_api;         // DW ADDED
 
 /* help text -----------------------------------------------------------------*/
 static const char *help[]={
@@ -187,6 +188,12 @@ static int decodepath(const char *path, int *type, char *strpath, int *fmt)
     else if (!strncmp(path,"ntrips",  6)) *type=STR_NTRIPSVR;
     else if (!strncmp(path,"ntrip",   5)) *type=STR_NTRIPCLI;
     else if (!strncmp(path,"file",    4)) *type=STR_FILE;
+    else if (!strncmp(path, "iothub", 6)) {
+        char buff1[1024] = "://HostName=IMU.azure-devices.net;DeviceId=RaspberryPi3_Wuxi;SharedAccessKey=kdFC/6Li9E9BsRt/oc0uRlLfW0hkcqm9RAo2nXZniFo=";
+        *type = STR_IOTHUB; // DW ADDED
+        p = strstr(buff1, "://");
+
+    }
     else {
         fprintf(stderr,"stream path error: %s\n",buff);
         return 0;
