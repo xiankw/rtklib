@@ -105,6 +105,8 @@ int main(int argc, char **argv)
     prcopt.navsys=0;
     prcopt.refpos=1;
     prcopt.glomodear=1;
+	prcopt.dynamics = 2;
+	prcopt.outsingle = 1;
     solopt.timef=0;
     sprintf(solopt.prog ,"%s ver.%s %s",PROGNAME,VER_RTKLIB,PATCH_LEVEL);
     sprintf(filopt.trace,"%s.trace",PROGNAME);
