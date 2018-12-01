@@ -593,8 +593,11 @@ static int scan_obstype(int format, char **files, int nf, rnxopt_t *opt,
     strfile_t *str;
     unsigned char codes[NSATSYS][33]={{0}};
     unsigned char types[NSATSYS][33]={{0}};
-    char msg[128];
+	char msg[2014] = { 0 };
     int i,j,k,l,m,c=0,type,sys,abort=0,n[NSATSYS]={0};
+	double dt = 0.0;
+	gtime_t pretime = { 0 };
+	unsigned long numofepoch[11] = { 0 };
     
     trace(3,"scan_obstype: nf=%d, opt=%s\n",nf,opt);
     
@@ -613,7 +616,7 @@ static int scan_obstype(int format, char **files, int nf, rnxopt_t *opt,
                 continue;
             }
             if (type!=1||str->obs->n<=0) continue;
-            
+
             if (!opt->ts.time||timediff(str->obs->data[0].time,opt->ts)>=0.001) {
                  
                 for (i=0;i<str->obs->n;i++) {
@@ -641,16 +644,47 @@ static int scan_obstype(int format, char **files, int nf, rnxopt_t *opt,
                     update_halfc(halfc,str->obs->data+i);
                 }
                 if (!time->time) *time=str->obs->data[0].time;
+				if (str->obs->n > 0)
+				{
+					if (pretime.time>0.0)
+						dt = timediff(str->obs->data[str->obs->n - 1].time, pretime);
+					pretime = str->obs->data[str->obs->n - 1].time;
+				}
+				if (dt > 0.0)
+				{
+					if (dt < 1.5) ++numofepoch[0]; // 0 sec gap
+					else if (dt < 2.5) ++numofepoch[1]; // 1 sec gap
+					else if (dt < 3.5) ++numofepoch[2]; // 2 sec gap
+					else if (dt < 4.5) ++numofepoch[3]; // 3 sec gap
+					else if (dt < 5.5) ++numofepoch[4]; // 4 sec gap
+					else if (dt < 10.5) ++numofepoch[5]; // 5-10 sec gap
+					else if (dt < 30.5) ++numofepoch[6]; // 11-30 sec gap
+					else if (dt < 60.5) ++numofepoch[7]; // 31-60 sec gap
+					else if (dt < 300.5) ++numofepoch[8]; // 61-300 sec gap
+					else if (dt < 600.5) ++numofepoch[9]; // 301-600 sec gap
+					else ++numofepoch[10]; // 601 sec gap
+				}
             }
             if (opt->te.time&&timediff(str->obs->data[0].time,opt->te)>10.0) break;
             
             if (++c%11) continue;
             
-            sprintf(msg,"scanning: %s %s%s%s%s%s%s%s",time_str(str->time,0),
-                    n[0]?"G":"",n[1]?"R":"",n[2]?"E":"",n[3]?"J":"",
-                    n[4]?"S":"",n[5]?"C":"",n[6]?"I":"");
+            sprintf(msg,"scanning: %s %s%s%s%s%s%s%s %7.3f",time_str(str->time,0),
+                    n[0]?"G":" ",n[1]?"R":" ",n[2]?"E":" ",n[3]?"J":" ",
+                    n[4]?"S":" ",n[5]?"C":" ",n[6]?"I":" ", dt);
             if ((abort=showmsg(msg))) break;
         }
+
+		showmsg("");
+		sprintf(msg, "Start Time: %s\n", time_str(*time, 0));
+		showmsg(msg);
+		sprintf(msg, "End   Time: %s\nDuration  : %10.3f s\n", time_str(str->obs->data[0].time, 0), timediff(str->obs->data[0].time, *time));
+		showmsg(msg);
+
+		sprintf(msg, "Epoch Gap Info\n TOTAL    %6i\n[      1] %6i\n[      2] %6i\n[      3] %6i\n[      4] %6i\n[  5- 10] %6i\n[ 11- 30] %6i\n[ 31- 60] %6i\n[ 61-300] %6i\n[301-600] %6i\n[601-   ] %6i\n"
+			, numofepoch[0], numofepoch[1], numofepoch[2], numofepoch[3], numofepoch[4], numofepoch[5], numofepoch[6], numofepoch[7], numofepoch[8], numofepoch[9], numofepoch[10]);
+		showmsg(msg);
+
         close_strfile(str);
     }
     free_strfile(str);
