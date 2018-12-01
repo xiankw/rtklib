@@ -68,7 +68,7 @@
         <TASM_Defines>_RTLDLL;NO_STRICT;WIN32;TRACE;ENAGLO;ENAQZS;ENAGAL;NFREQ=3;$(TASM_Defines)</TASM_Defines>
         <BRCC_Defines>_RTLDLL;NO_STRICT;WIN32;TRACE;ENAGLO;ENAQZS;ENAGAL;NFREQ=3;$(BRCC_Defines)</BRCC_Defines>
         <ILINK_AppType>Windows</ILINK_AppType>
-        <BCC_Defines>_RTLDLL;WIN32;TRACE;ENAGLO;ENAQZS;ENAGAL;ENAIRN;ENACMP;NFREQ=3;NEXOBS=3;ENALEX;_OUTPUT_DD_;$(BCC_Defines)</BCC_Defines>
+        <BCC_Defines>_RTLDLL;WIN32;TRACE;ENAGLO;ENAQZS;ENAGAL;ENAIRN;ENACMP;NFREQ=3;NEXOBS=3;ENALEX;$(BCC_Defines)</BCC_Defines>
         <BRCC_IncludePath>..\..\..\rtklib_extlex;..\..\extlex;..\..\src\rcv;..\appcmn;..\..\src;$(BDS)\include;$(BDS)\include\dinkumware;$(BDS)\include\vcl;$(BRCC_IncludePath)</BRCC_IncludePath>
         <BCC_PCHWithExternalTypeFiles>false</BCC_PCHWithExternalTypeFiles>
         <BCC_UserSuppliedOptions> -tWM</BCC_UserSuppliedOptions>
@@ -468,10 +468,7 @@
                     <Parameters Name="LoadAllSymbols">True</Parameters>
                     <Parameters Name="LoadUnspecifiedSymbols">False</Parameters>
                 </Parameters>
-                <Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\bcboffice2k250.bpl">Embarcadero C++Builder Office 2000 Servers Package</Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\bcbofficexp250.bpl">Embarcadero C++Builder Office XP Servers Package</Excluded_Packages>
-                </Excluded_Packages>
+                <Excluded_Packages/>
                 <ProjectProperties>
                     <ProjectProperties Name="AutoShowDeps">False</ProjectProperties>
                     <ProjectProperties Name="ManagePaths">True</ProjectProperties>
