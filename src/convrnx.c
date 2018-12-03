@@ -596,7 +596,7 @@ static int scan_obstype(int format, char **files, int nf, rnxopt_t *opt,
 	char msg[2014] = { 0 };
     int i,j,k,l,m,c=0,type,sys,abort=0,n[NSATSYS]={0};
 	double dt = 0.0;
-	gtime_t pretime = { 0 };
+	gtime_t pretime = { 0 }, starttime = { 0 };
 	unsigned long numofepoch[11] = { 0 };
     
     trace(3,"scan_obstype: nf=%d, opt=%s\n",nf,opt);
@@ -643,6 +643,7 @@ static int scan_obstype(int format, char **files, int nf, rnxopt_t *opt,
                     /* update half-cycle ambiguity status */
                     update_halfc(halfc,str->obs->data+i);
                 }
+				if (starttime.time == 0.0) starttime = str->obs->data[0].time;
                 if (!time->time) *time=str->obs->data[0].time;
 				if (str->obs->n > 0)
 				{
@@ -676,9 +677,9 @@ static int scan_obstype(int format, char **files, int nf, rnxopt_t *opt,
         }
 
 		showmsg("");
-		sprintf(msg, "Start Time: %s\n", time_str(*time, 0));
+		sprintf(msg, "Start Time: %s\n", time_str(starttime, 0));
 		showmsg(msg);
-		sprintf(msg, "End   Time: %s\nDuration  : %10.3f s\n", time_str(str->obs->data[0].time, 0), timediff(str->obs->data[0].time, *time));
+		sprintf(msg, "End   Time: %s\nDuration  : %10.3f s\n", time_str(str->obs->data[0].time, 0), timediff(str->obs->data[0].time, starttime));
 		showmsg(msg);
 
 		sprintf(msg, "Epoch Gap Info\n TOTAL    %6i\n[      1] %6i\n[      2] %6i\n[      3] %6i\n[      4] %6i\n[  5- 10] %6i\n[ 11- 30] %6i\n[ 31- 60] %6i\n[ 61-300] %6i\n[301-600] %6i\n[601-   ] %6i\n"
