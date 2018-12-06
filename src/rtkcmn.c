@@ -3884,9 +3884,9 @@ extern int rtk_uncompress(const char *file, char *uncfile)
 }
 /* dummy application functions for shared library ----------------------------*/
 #ifdef WIN_DLL
-extern int showmsg(char *format,...) {return 0;}
-extern void settspan(gtime_t ts, gtime_t te) {}
-extern void settime(gtime_t time) {}
+//EXPORT int showmsg(char *format,...) {return 0;}
+//EXPORT void settspan(gtime_t ts, gtime_t te) {}
+//EXPORT void settime(gtime_t time) {}
 #endif
 
 /* dummy functions for lex extentions ----------------------------------------*/

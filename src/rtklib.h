@@ -1398,10 +1398,10 @@ extern const double chisqr[];        /* chi-sqr(n) table (alpha=0.001) */
 extern const double lam_carr[];      /* carrier wave length (m) {L1,L2,...} */
 extern const prcopt_t prcopt_default; /* default positioning options */
 extern const solopt_t solopt_default; /* default solution output options */
-extern const sbsigpband_t igpband1[9][8]; /* SBAS IGP band 0-8 */
-extern const sbsigpband_t igpband2[2][5]; /* SBAS IGP band 9-10 */
+extern EXPORT const sbsigpband_t igpband1[9][8]; /* SBAS IGP band 0-8 */
+extern EXPORT const sbsigpband_t igpband2[2][5]; /* SBAS IGP band 9-10 */
 extern const char *formatstrs[];     /* stream format strings */
-extern opt_t sysopts[];              /* system options table */
+extern EXPORT opt_t sysopts[];              /* system options table */
 
 /* satellites, systems, codes functions --------------------------------------*/
 EXPORT int  satno   (int sys, int prn);
@@ -1904,9 +1904,9 @@ EXPORT int lexioncorr(gtime_t time, const nav_t *nav, const double *pos,
                       const double *azel, double *delay, double *var);
 
 /* application defined functions ---------------------------------------------*/
-extern int showmsg(char *format,...);
-extern void settspan(gtime_t ts, gtime_t te);
-extern void settime(gtime_t time);
+extern EXPORT int showmsg(char *format,...);
+extern EXPORT void settspan(gtime_t ts, gtime_t te);
+extern EXPORT void settime(gtime_t time);
 
 #ifdef __cplusplus
 }
